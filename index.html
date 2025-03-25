@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+    <style>
+        .song {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #282828;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .song-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+        }
+        #recently-played, #favorite-list, #song-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #recently-played li, #favorite-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px;
+        }
+        .small-song-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <li class="brand"><img src="logo.png" alt="Spotify">Spotify</li>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="separate.html">Subscription</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div id="container" style="display: flex;">
+            <aside id="sidebar" style="width: 25%; padding: 20px; background: #181818; color: white;">
+                <h3>Song List</h3>
+                <input type="text" id="search" placeholder="Search songs..." style="width: 100%; margin-bottom: 10px;">
+                <div id="song-list">
+                    <div class="song" data-song="aaya tufan.mp3">
+                        <img src="tufan.jpg" alt="Song 1" class="song-img">
+                        aaya re tufaan   <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song2.mp3">
+                        <img src="aayi nai.jpg" alt="Song 2" class="song-img">
+                        aayi naii <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song3.mp3">
+                        <img src="cover4.jpg" alt="Song 3" class="song-img">
+                        gori hai kallain <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song4.mp3">
+                        <img src="cover5.jpg" alt="Song 3" class="song-img">
+                        singham again  <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song5.mp3">
+                        <img src="aangaro.jpg" alt="Song 3" class="song-img">
+                        aangaron(pushpa)   <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song6.mp3">
+                        <img src="cover7.jpg" alt="Song 3" class="song-img">
+                        jaane tu (chhava) <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song7.mp3">
+                        <img src="cover5.jpg" alt="Song 3" class="song-img">
+                        heropanti <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song8.mp3">
+                        <img src="cover4.jpg" alt="Song 3" class="song-img">
+                        chahat <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song9.mp3">
+                        <img src="cover3.jpg" alt="Song 3" class="song-img">
+                        simba <button class="fav-btn">❤</button>
+                    </div>
+                    <div class="song" data-song="song10.mp3">
+                        <img src="cover2.jpg" alt="Song 3" class="song-img">
+                        song 10 <button class="fav-btn">❤</button>
+                    </div>
+                </div>
+                <h3>Recently Played</h3>
+                <ul id="recently-played"></ul>
+            </aside>
+            
+            <section id="home" style="width: 50%; padding: 20px;">
+                <h2>Welcome to Spotify Clone</h2>
+                <div id="player-controls">
+                    <button id="prev">&#9665; Prev</button>
+                    <button id="play">▶ Play</button>
+                    <audio id="audio-player" controls></audio>
+                    <button id="next">Next &#9655;</button>
+                </div>
+            </section>
+            
+            <aside id="favorites" style="width: 25%; padding: 20px; background: #181818; color: white;">
+                <h3>Favorite Songs</h3>
+                 <p>Duoble click on song to add to favorite </p>
+        
+                <ul id="favorite-list"></ul>
+            </aside>
+        </div>
+    </main>
+</body>
+</html>
