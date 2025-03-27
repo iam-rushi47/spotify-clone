@@ -1,53 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const songs = document.querySelectorAll(".song");
-    const audioPlayer = document.getElementById("audio-player");
-    const favoriteList = document.getElementById("favorite-list");
-    const prevButton = document.getElementById("prev");
-    const nextButton = document.getElementById("next");
-    let currentSongIndex = 0;
-    let songArray = Array.from(songs);
-
-    function playSong(index) {
-        if (index >= 0 && index < songArray.length) {
-            currentSongIndex = index;
-            audioPlayer.src = songArray[currentSongIndex].getAttribute("data-song");
-            audioPlayer.play();
-        }
+    // Ensure there's only ONE Now Playing display
+    let nowPlaying = document.getElementById("now-playing");
+    if (!nowPlaying) {
+        nowPlaying = document.createElement("div");
+        nowPlaying.id = "now-playing";
+        nowPlaying.style.textAlign = "center";
+        nowPlaying.style.marginBottom = "10px";
+        nowPlaying.style.color = "white";
+        document.getElementById("player-controls").prepend(nowPlaying);
     }
 
-    songs.forEach((song, index) => {
-        song.addEventListener("click", function () {
-            playSong(index);
-        });
-
-        song.addEventListener("dblclick", function () {
-            let favoriteItem = document.createElement("li");
-            favoriteItem.innerText = this.innerText;
-            favoriteList.appendChild(favoriteItem);
-        });
-    });
-
-    document.getElementById("search").addEventListener("input", function () {
-        let filter = this.value.toLowerCase();
-        songArray.forEach(song => {
-            song.style.display = song.innerText.toLowerCase().includes(filter) ? "block" : "none";
-        });
-    });
-
-    prevButton.addEventListener("click", function () {
-        if (currentSongIndex > 0) {
-            playSong(currentSongIndex - 1);
-        }
-    });
-
-    nextButton.addEventListener("click", function () {
-        if (currentSongIndex < songArray.length - 1) {
-            playSong(currentSongIndex + 1);
-        }
-    });
-});
-///new code bellow
-document.addEventListener("DOMContentLoaded", () => {
+    // Get elements
     const audioPlayer = document.getElementById("audio-player");
     const playButton = document.getElementById("play");
     const prevButton = document.getElementById("prev");
@@ -58,18 +21,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const favButtons = document.querySelectorAll(".fav-btn");
     const searchInput = document.getElementById("search");
 
-    let currentSongIndex = 0;
+    let currentSongIndex = -1; // Ensure no song is selected at first
     let songs = [];
 
-    // Load all songs into array
+    // Load songs into an array
     songList.forEach((song, index) => {
-        songs.push({
+        let songData = {
             element: song,
             src: song.getAttribute("data-song"),
             title: song.innerText.trim(),
-            img: song.querySelector("img").src
-        });
+            img: song.querySelector("img") ? song.querySelector("img").src : ""
+        };
+        songs.push(songData);
 
+        // Play song on click
         song.addEventListener("click", () => {
             playSong(index);
         });
@@ -78,15 +43,42 @@ document.addEventListener("DOMContentLoaded", () => {
     function playSong(index) {
         if (index < 0 || index >= songs.length) return;
 
+        if (currentSongIndex === index && !audioPlayer.paused) {
+            audioPlayer.pause();
+            playButton.innerText = "▶ Play";
+            return;
+        }
+
         currentSongIndex = index;
-        audioPlayer.src = songs[index].src;
+        const selectedSong = songs[index];
+
+        audioPlayer.src = selectedSong.src;
         audioPlayer.play();
         playButton.innerText = "⏸ Pause";
-        updateRecentlyPlayed(songs[index]);
+        updateNowPlaying(selectedSong.title); // ✅ Ensures only one update
+        updateRecentlyPlayed(selectedSong);
+    }
+
+    function updateNowPlaying(songName) {
+        nowPlaying.innerText = `Now Playing: ${songName}`;
+    }
+
+    function updateRecentlyPlayed(song) {
+        // Avoid duplicate entries
+        if ([...recentlyPlayed.children].some(item => item.innerText.includes(song.title))) return;
+
+        let listItem = document.createElement("li");
+        listItem.innerHTML = `<img src="${song.img}" class="small-song-img"> ${song.title}`;
+        recentlyPlayed.prepend(listItem);
+
+        // Keep max 5 recently played songs
+        if (recentlyPlayed.children.length > 5) {
+            recentlyPlayed.removeChild(recentlyPlayed.lastChild);
+        }
     }
 
     playButton.addEventListener("click", () => {
-        if (audioPlayer.paused) {
+        if (audioPlayer.paused && currentSongIndex !== -1) {
             audioPlayer.play();
             playButton.innerText = "⏸ Pause";
         } else {
@@ -96,26 +88,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     nextButton.addEventListener("click", () => {
+        if (currentSongIndex === -1) return; // Prevent errors if no song is selected
         playSong((currentSongIndex + 1) % songs.length);
     });
 
     prevButton.addEventListener("click", () => {
+        if (currentSongIndex === -1) return;
         playSong((currentSongIndex - 1 + songs.length) % songs.length);
     });
-
-    function updateRecentlyPlayed(song) {
-        let listItem = document.createElement("li");
-        listItem.innerHTML = `<img src="${song.img}" class="small-song-img"> ${song.title}`;
-        recentlyPlayed.prepend(listItem);
-        if (recentlyPlayed.children.length > 5) {
-            recentlyPlayed.removeChild(recentlyPlayed.lastChild);
-        }
-    }
 
     favButtons.forEach((button, index) => {
         button.addEventListener("click", (e) => {
             e.stopPropagation();
             let song = songs[index];
+
+            // Avoid duplicate favorites
+            if ([...favoriteList.children].some(item => item.innerText.includes(song.title))) return;
+
             let favItem = document.createElement("li");
             favItem.innerHTML = `<img src="${song.img}" class="small-song-img"> ${song.title}`;
             favoriteList.appendChild(favItem);
@@ -126,11 +115,28 @@ document.addEventListener("DOMContentLoaded", () => {
         let searchText = searchInput.value.toLowerCase();
         songList.forEach(song => {
             let title = song.innerText.toLowerCase();
-            if (title.includes(searchText)) {
-                song.style.display = "flex";
-            } else {
-                song.style.display = "none";
-            }
+            song.style.display = title.includes(searchText) ? "flex" : "none";
         });
+    });
+
+    // User Login Handling
+    let username = localStorage.getItem("loggedInUser");
+    let userSection = document.getElementById("user-section");
+    let userIcon = document.getElementById("user-icon");
+    let logoutBtn = document.getElementById("logout-btn");
+    let loginLink = document.getElementById("login-link");
+
+    if (username) {
+        let initials = username.charAt(0).toUpperCase();
+        userIcon.textContent = initials;
+        userSection.style.display = "flex";
+        loginLink.style.display = "none";
+    } else {
+        userSection.style.display = "none";
+    }
+
+    logoutBtn.addEventListener("click", function () {
+        localStorage.removeItem("loggedInUser");
+        window.location.href = "login.html";
     });
 });
